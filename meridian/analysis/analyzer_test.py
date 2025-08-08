@@ -4972,6 +4972,7 @@ class AnalyzerOrganicMediaTest(tf.test.TestCase, parameterized.TestCase):
         "organic_media_1",
         "organic_media_2",
         "organic_media_3",
+        "organic_rf_0",
     ]
     self.assertSameElements(expected_channels, actual_channels)
 

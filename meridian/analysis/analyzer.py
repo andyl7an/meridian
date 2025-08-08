@@ -938,8 +938,8 @@ class Analyzer:
     """Computes decayed effect means and CIs for media or RF channels.
 
     Args:
-      channel_type: Specifies `media`, `reach`, or `organic_media` for computing
-        prior and posterior decayed effects.
+      channel_type: Specifies `media`, `reach`, `organic_media`, or
+        `organic_reach` for computing prior and posterior decayed effects.
       l_range: The range of time across which the adstock effect is computed.
       xr_dims: A list of dimensions for the output dataset.
       xr_coords: A dictionary with the coordinates for the output dataset.
@@ -967,6 +967,12 @@ class Analyzer:
       posterior = np.reshape(
           self._meridian.inference_data.posterior.alpha_om.values,
           (-1, self._meridian.n_organic_media_channels),
+      )
+    elif channel_type is constants.ORGANIC_REACH:
+      prior = self._meridian.inference_data.prior.alpha_orf.values[0]
+      posterior = np.reshape(
+          self._meridian.inference_data.posterior.alpha_orf.values,
+          (-1, self._meridian.n_organic_rf_channels),
       )
     else:
       raise ValueError(
@@ -4096,7 +4102,7 @@ class Analyzer:
   def adstock_decay(
       self, confidence_level: float = constants.DEFAULT_CONFIDENCE_LEVEL
   ) -> pd.DataFrame:
-    """Calculates adstock decay for paid media, RF, and organic media channels.
+    """Calculates adstock decay for paid media, RF, and non-paid channels.
 
     Args:
       confidence_level: Confidence level for prior and posterior credible
@@ -4195,6 +4201,25 @@ class Analyzer:
       )
       if not adstock_df_om.empty:
         final_df_list.append(adstock_df_om)
+
+    if self._meridian.n_organic_rf_channels > 0:
+      organic_rf_channel_values = (
+          self._meridian.input_data.organic_rf_channel.values
+          if self._meridian.input_data.organic_rf_channel is not None
+          else []
+      )
+      organic_rf_xr_coords = base_xr_coords | {
+          constants.CHANNEL: organic_rf_channel_values
+      }
+      adstock_df_orf = self._get_adstock_dataframe(
+          constants.ORGANIC_REACH,
+          l_range,
+          xr_dims,
+          organic_rf_xr_coords,
+          confidence_level,
+      )
+      if not adstock_df_orf.empty:
+        final_df_list.append(adstock_df_orf)
 
     final_df = pd.concat(final_df_list, ignore_index=True)
     # Adding an extra column that indicates whether time_units is an integer
