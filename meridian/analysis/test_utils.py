@@ -21,7 +21,7 @@ random data (using seed=0), using same settings as the test Colab notebook.
 
 from collections.abc import Mapping, Sequence
 import math
-from xml import etree as et
+from xml.etree import ElementTree as et
 
 from meridian import constants as c
 import numpy as np
@@ -3233,10 +3233,10 @@ def generate_adstock_decay_data() -> pd.DataFrame:
 
 
 def get_child_element(
-    root: et.ElementTree.Element,
+    root: et.Element,
     path: str,
     attribs: Mapping[str, str] | None = None,
-) -> et.ElementTree.Element:
+) -> et.Element:
   """Searches for a descendant element under `root` with the given path.
 
   Args:
@@ -3261,7 +3261,7 @@ def get_child_element(
 
 
 def get_table_row_values(
-    tr: et.ElementTree.Element, row_element="td"
+    tr: et.Element, row_element="td"
 ) -> Sequence[str]:
   row_values = []
   for row in tr.findall(row_element):

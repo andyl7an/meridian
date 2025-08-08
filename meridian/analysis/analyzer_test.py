@@ -5068,6 +5068,17 @@ class AnalyzerOrganicMediaTest(tf.test.TestCase, parameterized.TestCase):
     )
     self.assertTrue(hist_df.index.is_unique)
 
+  def test_hill_curves_organic_rf_channel_type(self):
+    hill_table = self.analyzer_non_paid.hill_curves()
+    organic_rf_df = hill_table[
+        hill_table[constants.CHANNEL_TYPE] == constants.ORGANIC_RF
+    ]
+    self.assertFalse(organic_rf_df.empty)
+    self.assertEqual(
+        organic_rf_df[constants.CHANNEL].unique(),
+        self.analyzer_non_paid._meridian.input_data.organic_rf_channel,
+    )
+
   def test_hill_curves_curve_data_correct(self):
     hill_table = self.analyzer_non_paid.hill_curves()
 
